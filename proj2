@@ -1,0 +1,130 @@
+// ManagementSystem.java
+import java.io.*;
+import java.util.*;
+
+public class ManagementSystem {
+    static final String FILE_NAME = "students.txt";
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        int choice;
+        do {
+            System.out.println("\n--- Student Management System ---");
+            System.out.println("1. Add Student");
+            System.out.println("2. View All Students");
+            System.out.println("3. Search Student by ID");
+            System.out.println("4. Delete Student by ID");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1: addStudent(); break;
+                case 2: viewStudents(); break;
+                case 3: searchStudent(); break;
+                case 4: deleteStudent(); break;
+                case 5: System.out.println("Exiting..."); break;
+                default: System.out.println("Invalid choice. Try again.");
+            }
+        } while (choice != 5);
+    }
+
+    public static void addStudent() {
+        System.out.print("Enter ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter Age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter Course: ");
+        String course = scanner.nextLine();
+
+        Student s = new Student(id, name, age, course);
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+            bw.write(s.toString());
+            bw.newLine();
+            System.out.println("Student added successfully.");
+        } catch (IOException e) {
+            System.out.println("Error writing to file.");
+        }
+    }
+
+    public static void viewStudents() {
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            System.out.println("\n--- All Students ---");
+            while ((line = br.readLine()) != null) {
+                Student s = Student.fromString(line);
+                System.out.println("ID: " + s.getId() + ", Name: " + s.getName() + ", Age: " + s.getAge() + ", Course: " + s.getCourse());
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+        }
+    }
+
+    public static void searchStudent() {
+        System.out.print("Enter student ID to search: ");
+        int id = scanner.nextInt();
+        boolean found = false;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Student s = Student.fromString(line);
+                if (s.getId() == id) {
+                    System.out.println("Found: " + s);
+                    found = true;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+        }
+
+        if (!found) {
+            System.out.println("Student not found.");
+        }
+    }
+
+    public static void deleteStudent() {
+        System.out.print("Enter student ID to delete: ");
+        int id = scanner.nextInt();
+        List<String> updatedList = new ArrayList<>();
+        boolean found = false;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Student s = Student.fromString(line);
+                if (s.getId() != id) {
+                    updatedList.add(line);
+                } else {
+                    found = true;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME))) {
+            for (String entry : updatedList) {
+                bw.write(entry);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing file.");
+        }
+
+        if (found) {
+            System.out.println("Student deleted.");
+        } else {
+            System.out.println("Student not found.");
+        }
+    }
+}
