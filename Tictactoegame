@@ -1,0 +1,91 @@
+import java.util.Scanner;
+
+public class TicTacToeGame {
+    private static final char[][] board = {
+        {' ', ' ', ' '},
+        {' ', ' ', ' '},
+        {' ', ' ', ' '}
+    };
+    private static char currentPlayer = 'X';
+
+    public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            int row, col;
+            boolean gameEnded = false;
+
+            System.out.println("Welcome to Tic-Tac-Toe!");
+            printBoard();
+
+            while (!gameEnded) {
+                System.out.println("Player " + currentPlayer + ", enter your move (row and column 0-2): ");
+                row = scanner.nextInt();
+                col = scanner.nextInt();
+
+                if (row < 0 || col < 0 || row > 2 || col > 2) {
+                    System.out.println("Invalid position! Try again.");
+                    continue;
+                }
+
+                if (board[row][col] != ' ') {
+                    System.out.println("This spot is already taken! Try again.");
+                    continue;
+                }
+
+                board[row][col] = currentPlayer;
+                printBoard();
+
+                if (checkWinner()) {
+                    System.out.println("Player " + currentPlayer + " wins!");
+                    gameEnded = true;
+                } else if (isBoardFull()) {
+                    System.out.println("It's a draw!");
+                    gameEnded = true;
+                } else {
+                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                }
+            }
+        }
+    }
+
+    public static void printBoard() {
+        System.out.println("  0 1 2");
+        for (int i = 0; i < 3; i++) {
+            System.out.print(i + " ");
+            for (int j = 0; j < 3; j++) {
+                System.out.print(board[i][j]);
+                if (j < 2) System.out.print("|");
+            }
+            System.out.println();
+            if (i < 2) System.out.println("  -+-+-");
+        }
+    }
+
+    public static boolean isBoardFull() {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                if (board[i][j] == ' ')
+                    return false;
+        return true;
+    }
+
+    public static boolean checkWinner() {
+        for (int i = 0; i < 3; i++) {
+            // Check rows and columns
+            if ((board[i][0] == currentPlayer &&
+                 board[i][1] == currentPlayer &&
+                 board[i][2] == currentPlayer) ||
+                (board[0][i] == currentPlayer &&
+                 board[1][i] == currentPlayer &&
+                 board[2][i] == currentPlayer))
+                return true;
+        }
+
+        // Check diagonals
+        return (board[0][0] == currentPlayer &&
+                board[1][1] == currentPlayer &&
+                board[2][2] == currentPlayer) ||
+               (board[0][2] == currentPlayer &&
+                board[1][1] == currentPlayer &&
+                board[2][0] == currentPlayer);
+    }
+}
